@@ -21,12 +21,39 @@ var uiController = (function() {
   };
 })();
 
+//
+//
 //Санхүүтэй ажиллах controller
-var financeController = (function() {})();
+var financeController = (function() {
+  var income = function(type, description, value) {
+    this.type = type;
+    this.description = description;
+    this.value = value;
+  };
 
+  var expense = function(type, description, value) {
+    this.type = type;
+    this.description = description;
+    this.value = value;
+  };
+
+  var data = {
+    allItems: {
+      inc: [],
+      exp: []
+    },
+
+    totals: {
+      inc: 0,
+      exp: 0
+    }
+  };
+})();
+
+//
+//
 //Холбогч controller
 var appController = (function(uiController, financeController) {
-  var DOM = uiController.getDOMstring();
   function ctrlAddItem() {
     //Оруулах өгөгдлийг дэлгэцнээс олж авна.
     console.log(uiController.inputValue());
@@ -35,14 +62,26 @@ var appController = (function(uiController, financeController) {
     //Төсвийг тооцно.
     //Эцсийн үлдэгдлийг дэлгэцэнд гаргана.
   }
-
-  document.querySelector(DOM.addBtn).addEventListener("click", function() {
-    ctrlAddItem();
-  });
-
-  document.addEventListener("keypress", function(event) {
-    if (event.keyCode === 13 || event.which === 13) {
+  var setupEventListeners = function() {
+    var DOM = uiController.getDOMstring();
+    document.querySelector(DOM.addBtn).addEventListener("click", function() {
       ctrlAddItem();
+    });
+
+    document.addEventListener("keypress", function(event) {
+      if (event.keyCode === 13 || event.which === 13) {
+        ctrlAddItem();
+      }
+    });
+  };
+
+  return {
+    init: function() {
+      console.log("starting...");
+      setupEventListeners();
     }
-  });
+  };
 })(uiController, financeController);
+
+//Бүх үйл ажиллагааг шинээр эхлүүлэх функц дуудсан
+appController.init();
