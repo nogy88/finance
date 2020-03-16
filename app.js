@@ -1,44 +1,46 @@
-//Дэлгэцтэй ажиллах controller
+// Дэлгэцтэй ажиллах контроллер
 var uiController = (function() {
-  var DOMstring = {
+  var DOMstrings = {
     inputType: ".add__type",
-    inputDesc: ".add__description",
+    inputDescription: ".add__description",
     inputValue: ".add__value",
     addBtn: ".add__btn"
   };
 
   return {
-    inputValue: function() {
+    getInput: function() {
       return {
-        Type: document.querySelector(DOMstring.inputType).value,
-        Desc: document.querySelector(DOMstring.inputDesc).value,
-        Value: document.querySelector(DOMstring.inputValue).value
+        type: document.querySelector(DOMstrings.inputType).value, // exp, inc
+        description: document.querySelector(DOMstrings.inputDescription).value,
+        value: document.querySelector(DOMstrings.inputValue).value
       };
     },
-    getDOMstring: function() {
-      return DOMstring;
+
+    getDOMstrings: function() {
+      return DOMstrings;
     }
   };
 })();
 
-//
-//
-//Санхүүтэй ажиллах controller
+// Санхүүтэй ажиллах контроллер
 var financeController = (function() {
-  var income = function(type, description, value) {
-    this.type = type;
+  // private data
+  var Income = function(id, description, value) {
+    this.id = id;
     this.description = description;
     this.value = value;
   };
 
-  var expense = function(type, description, value) {
-    this.type = type;
+  // private data
+  var Expense = function(id, description, value) {
+    this.id = id;
     this.description = description;
     this.value = value;
   };
 
+  // private data
   var data = {
-    allItems: {
+    items: {
       inc: [],
       exp: []
     },
@@ -48,22 +50,48 @@ var financeController = (function() {
       exp: 0
     }
   };
+
+  return {
+    addItem: function(type, desc, val) {
+      var item, id;
+
+      if (data.items[type].length === 0) id = 1;
+      else {
+        id = data.items[type][data.items[type].length - 1].id + 1;
+      }
+
+      if (type === "inc") {
+        item = new Income(id, desc, val);
+      } else {
+        item = new Expense(id, desc, val);
+      }
+
+      data.items[type].push(item);
+    },
+
+    seeData: function() {
+      return data;
+    }
+  };
 })();
 
-//
-//
-//Холбогч controller
+// Програмын холбогч контроллер
 var appController = (function(uiController, financeController) {
-  function ctrlAddItem() {
-    //Оруулах өгөгдлийг дэлгэцнээс олж авна.
-    console.log(uiController.inputValue());
-    //Оруулсан өгөгдлүүдээ санхүүгийн контроллерт дамжуулж тэндээ хадгална.
-    //Олж авсан өгөгдлүүдээ вэб дээр тохирох хэсэгт харуулна.
-    //Төсвийг тооцно.
-    //Эцсийн үлдэгдлийг дэлгэцэнд гаргана.
-  }
+  var ctrlAddItem = function() {
+    // 1. Оруулах өгөгдлийг дэлгэцээс олж авна.
+    var input = uiController.getInput();
+
+    // 2. Олж авсан өгөгдлүүдээ санхүүгийн контроллерт дамжуулж тэнд хадгална.
+    financeController.addItem(input.type, input.description, input.value);
+
+    // 3. Олж авсан өгөгдлүүдээ вэб дээрээ тохирох хэсэгт нь гаргана
+    // 4. Төсвийг тооцоолно
+    // 5. Эцсийн үлдэгдэл, тооцоог дэлгэцэнд гаргана.
+  };
+
   var setupEventListeners = function() {
-    var DOM = uiController.getDOMstring();
+    var DOM = uiController.getDOMstrings();
+
     document.querySelector(DOM.addBtn).addEventListener("click", function() {
       ctrlAddItem();
     });
@@ -77,11 +105,10 @@ var appController = (function(uiController, financeController) {
 
   return {
     init: function() {
-      console.log("starting...");
+      console.log("Application started...");
       setupEventListeners();
     }
   };
 })(uiController, financeController);
 
-//Бүх үйл ажиллагааг шинээр эхлүүлэх функц дуудсан
 appController.init();
