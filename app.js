@@ -4,7 +4,9 @@ var uiController = (function() {
     inputType: ".add__type",
     inputDescription: ".add__description",
     inputValue: ".add__value",
-    addBtn: ".add__btn"
+    addBtn: ".add__btn",
+    IncList: ".income__list",
+    ExpList: ".expenses__list"
   };
 
   return {
@@ -18,6 +20,37 @@ var uiController = (function() {
 
     getDOMstrings: function() {
       return DOMstrings;
+    },
+
+    clearFields: function() {
+      var field = document.querySelectorAll(
+        DOMstrings.inputDescription + ", " + DOMstrings.inputValue
+      );
+
+      var fieldArr = Array.prototype.slice.call(field);
+
+      fieldArr.forEach(function(el, index, arr) {
+        el.value = "";
+      });
+
+      fieldArr[0].focus();
+    },
+
+    addItemDisplay: function(item, type) {
+      var html, list;
+      if (type === "inc") {
+        list = DOMstrings.IncList;
+        html =
+          '<div class="item clearfix" id="income-%id%"><div class="item__description">%desc%</div><div class="right clearfix"><div class="item__value">+ %value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+      } else {
+        list = DOMstrings.ExpList;
+        html =
+          '<div class="item clearfix" id="expense-%id%"><div class="item__description">%desc%</div><div class="right clearfix"><div class="item__value">- %value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+      }
+      html = html.replace("%id%", item.id);
+      html = html.replace("%desc%", item.description);
+      html = html.replace("%value%", item.value);
+      document.querySelector(list).insertAdjacentHTML("beforeend", html);
     }
   };
 })();
@@ -67,6 +100,8 @@ var financeController = (function() {
       }
 
       data.items[type].push(item);
+
+      return item;
     },
 
     seeData: function() {
@@ -82,9 +117,15 @@ var appController = (function(uiController, financeController) {
     var input = uiController.getInput();
 
     // 2. Олж авсан өгөгдлүүдээ санхүүгийн контроллерт дамжуулж тэнд хадгална.
-    financeController.addItem(input.type, input.description, input.value);
+    var item = financeController.addItem(
+      input.type,
+      input.description,
+      input.value
+    );
 
     // 3. Олж авсан өгөгдлүүдээ вэб дээрээ тохирох хэсэгт нь гаргана
+    uiController.addItemDisplay(item, input.type);
+    uiController.clearFields();
     // 4. Төсвийг тооцоолно
     // 5. Эцсийн үлдэгдэл, тооцоог дэлгэцэнд гаргана.
   };
